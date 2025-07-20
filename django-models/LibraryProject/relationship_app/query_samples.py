@@ -25,11 +25,11 @@ def setup_sample_data():
 # Query 1: All books by a specific author
 
 
-def get_books_by_author(author_name):
-    books = Book.objects.filter(author__name=author_name)
-    print(f"\nBooks by {author_name}:")
-    for book in books:
-        print(f"- {book.title}")
+# def get_books_by_author(author_name):
+#     books = Book.objects.filter(author__name=author_name)
+#     print(f"\nBooks by {author_name}:")
+#     for book in books:
+#         print(f"- {book.title}")
 
 # Query 2: All books in a library
 
@@ -56,9 +56,20 @@ def get_librarian_for_library(library_name):
         print("Library or librarian not found.")
 
 
+def find_books_by_author(author_name):
+    try:
+        author = Author.objects.get(name=author_name)
+        books = Book.objects.filter(author=author)
+        for book in books:
+            print(f"Book: {book.title}")
+    except Author.DoesNotExist:
+        print(f"No author found with name: {author_name}")
+
+
 # Run all
 if __name__ == "__main__":
     setup_sample_data()
-    get_books_by_author("Chinua Achebe")
+    # get_books_by_author("Chinua Achebe")
+    find_books_by_author("Chinua Achebe")
     get_books_in_library("Central Library")
     get_librarian_for_library("Central Library")
