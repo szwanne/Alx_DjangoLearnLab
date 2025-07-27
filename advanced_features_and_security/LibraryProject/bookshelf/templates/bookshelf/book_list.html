@@ -1,0 +1,17 @@
+{% extends "base.html" %} {% block content %}
+<h1>Book List</h1>
+<ul>
+  {% for book in books %}
+  <li>
+    <strong>{{ book.title }}</strong> by {{ book.author }} {% if
+    perms.bookshelf.can_edit %} |
+    <a href="{% url 'book_edit' book.id %}">Edit</a> {% endif %} {% if
+    perms.bookshelf.can_delete %} |
+    <a href="{% url 'book_delete' book.id %}">Delete</a>
+    {% endif %}
+  </li>
+  {% empty %}
+  <li>No books available.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
