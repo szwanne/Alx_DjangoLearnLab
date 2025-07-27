@@ -1,0 +1,7 @@
+<h2>Edit Book</h2>
+<p>Are you sure you want to edit "{{ book.title }}"?</p>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">Yes, edit</button>
+  <a href="{% url 'list_books' %}">Cancel</a>
+</form>
