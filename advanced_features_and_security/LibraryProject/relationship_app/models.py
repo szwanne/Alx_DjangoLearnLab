@@ -97,6 +97,13 @@ class Librarian(models.Model):
         return self.name
 
 
+class CustomUser(AbstractUser):
+    date_of_birth = models.DateField()
+    profile_photo = models.ImageField()
+
+    objects = CustomUserManager()
+
+
 # from django.dispatch import receiver
 # from django.db.models.signals import post_save
 # from django.db import models
