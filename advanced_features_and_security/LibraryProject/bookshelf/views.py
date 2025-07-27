@@ -54,3 +54,11 @@ def search_books(request):
         query = form.cleaned_data['q']
         books = Book.objects.filter(title__icontains=query)
     return render(request, 'bookshelf/book_list.html', {'form': form, 'books': books})
+
+
+def example_form_view(request):
+    form = ExampleForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        # process the form data here (e.g., save to DB, send email, etc.)
+        pass
+    return render(request, 'bookshelf/example_form.html', {'form': form})
