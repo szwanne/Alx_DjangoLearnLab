@@ -22,3 +22,12 @@ Task Description: Install Django and create a new Django project named LibraryPr
 
 - Permissions are defined in the `Book` model's `Meta` class.
 - New permissions require running migrations and updating group assignments.
+
+# ✅ DEBUG should be False in production to avoid exposing sensitive error info
+
+DEBUG = False
+
+# ✅ Enforce secure cookies over HTTPS
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True

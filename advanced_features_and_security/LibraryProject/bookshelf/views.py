@@ -1,3 +1,5 @@
+from .forms import BookSearchForm
+from django.db.models import Q
 from django.shortcuts import render
 
 # Create your views here.
@@ -36,3 +38,18 @@ def delete_book(request, book_id):
         book.delete()
         return redirect('book_list')
     return render(request, 'yourapp/confirm_delete.html', {'book': book})
+
+
+def search_books(request):
+    query = request.GET.get('q', '')
+    books = Book.objects.filter(Q(title__icontains=query))
+    return render(request, 'bookshelf/book_list.html', {'books': books})
+
+
+def search_books(request):
+    form = BookSearchForm(request.GET)
+    books = []
+    if form.is_valid():
+        query = form.cleaned_data['q']
+        books = Book.objects.filter(title__icontains=query)
+    return render(request, 'bookshelf/book_list.html', {'form': form, 'books': books})
