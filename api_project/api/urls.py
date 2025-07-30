@@ -2,12 +2,18 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework.authtoken.views import obtain_auth_token
 from .views import BookList, BookViewSet
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 
 # /api/auth/token/ - POST endpoint for retrieving auth token
 # Requires JSON body: {"username": "user", "password": "pass"}
 
 router = DefaultRouter()
 router.register(r'books_all', BookViewSet, basename='book_all')
+
+user = User.objects.get(username='your_username')
+token, created = Token.objects.get_or_create(user=user)
+print(token.key)
 
 urlpatterns = [
     path('books/', BookList.as_view(), name='book-list'),
