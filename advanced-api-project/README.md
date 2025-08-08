@@ -50,3 +50,21 @@
 | `ordering` | Order by `title`, `publication_year` |
 
 **Examples:**
+
+## 🧪 API Testing
+
+Unit tests are located in `api/test_views.py`. They cover:
+
+- Book CRUD operations
+- Permission and authentication rules
+- Filtering, searching, and ordering behavior
+
+### 🔧 Run Tests
+
+### 🔍 Sample Assertions
+
+- `GET /api/books/` → 200 OK
+- `POST /api/books/create/` → 401 Unauthorized (unauthenticated)
+- `POST /api/books/create/` → 201 Created (authenticated)
+- `PUT /api/books/<id>/update/` → 200 OK
+- `DELETE /api/books/<id>/delete/` → 204 No Content
