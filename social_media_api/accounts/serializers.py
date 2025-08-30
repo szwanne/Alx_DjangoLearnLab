@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-# Serializer for viewing user info
+# Serializer to view user data
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -12,21 +12,17 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email',
                   'bio', 'profile_picture', 'followers']
 
-# Serializer for registering new users
+# Serializer for user registration
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-
     class Meta:
         model = User
         fields = ['username', 'email', 'password']
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
 
     def create(self, validated_data):
-        # Use the model's create_user method to hash the password
-        user = User.objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password']
-        )
-        return user
+        # Use the model's built-in method to create user
+        return User.objects.create_user(**validated_data)
