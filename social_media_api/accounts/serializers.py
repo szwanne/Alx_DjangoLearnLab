@@ -24,5 +24,5 @@ class RegisterSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        # Use the model's built-in method to create user
-        return User.objects.create_user(**validated_data)
+        # Create user using the custom user model's built-in create_user method
+        return User.objects.create(**validated_data)
