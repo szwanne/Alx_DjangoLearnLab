@@ -260,3 +260,16 @@ class PostSearchView(ListView):
                 Q(tags__name__icontains=query)
             ).distinct().order_by('-published_date')
         return Post.objects.none()
+
+
+class PostByTagListView(ListView):
+    model = Post
+    template_name = 'blog/posts_by_tag.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+
+    def get_queryset(self):
+        tag_slug = self.kwargs.get('tag_slug')
+        if tag_slug:
+            return Post.objects.filter(tags__slug=tag_slug).order_by('-published_date')
+        return Post.objects.all()
