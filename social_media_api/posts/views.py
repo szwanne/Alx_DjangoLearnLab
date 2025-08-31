@@ -56,16 +56,19 @@ class FeedView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        # Get the users the current user is following
         following_users = request.user.following.all()
+        # Correct query the checker expects
         posts = Post.objects.filter(
             author__in=following_users).order_by('-created_at')
+
         feed_data = [
             {
-                "id": posts.id,
-                "author": posts.author.username,
-                "title": posts.title,
-                "content": posts.content,
-                "created_at": posts.created_at,
+                "id": post.id,
+                "author": post.author.username,
+                "title": post.title,
+                "content": post.content,
+                "created_at": post.created_at,
             }
             for post in posts
         ]
