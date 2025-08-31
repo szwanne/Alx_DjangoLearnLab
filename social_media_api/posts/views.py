@@ -86,3 +86,17 @@ class UnlikePostView(APIView):
             return Response({'message': 'Post unliked successfully!'})
         else:
             return Response({'message': 'You have not liked this post yet.'}, status=400)
+
+
+class FeedView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = PostSerializer
+
+    def get(self, request):
+        # Get the users the current user is following
+        following_users = request.user.following.all()
+        # Filter posts by those users and order by newest first
+        posts = Post.objects.filter(
+            author__in=following_users).order_by('-created_at')
+        serializer = self.get_serializer(posts, many=True)
+        return Response(serializer.data)
