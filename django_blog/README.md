@@ -62,3 +62,21 @@ Forms validated and updated via POST request.
 - Adding comments: Authenticated users can add comments directly on a post's detail page.
 - Editing/deleting: Only the comment's author can edit or delete; controls are shown inline when user is the author.
 - All forms use CSRF tokens and server-side validation via `CommentForm`.
+
+## Tagging & Search Features
+
+### Tagging
+
+- Posts can have multiple tags.
+- Tags are displayed on post detail pages.
+- Clicking a tag shows all posts with that tag: `/tags/<tag_name>/`.
+
+### Search
+
+- Use the search bar to find posts by title, content, or tags.
+- Search results appear at `/search/?q=<keyword>`.
+- Search returns distinct posts that match any criteria.
+
+### Forms
+
+- Post creation/editing includes a tags field (comma-separated).

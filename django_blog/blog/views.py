@@ -1,4 +1,6 @@
 # blog/views.py
+from taggit.models import Tag
+from django.db.models import Q
 from django.views.generic import (
     ListView, DetailView,
     CreateView, UpdateView, DeleteView
@@ -219,3 +221,42 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def get_success_url(self):
         return self.object.post.get_absolute_url()
+
+
+# blog/views.py
+
+# Filter posts by tag
+
+class TaggedPostListView(ListView):
+    model = Post
+    template_name = 'blog/tagged_post_list.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+
+    def get_queryset(self):
+        self.tag = get_object_or_404(Tag, name=self.kwargs.get('tag_name'))
+        return Post.objects.filter(tags__name__in=[self.tag.name]).order_by('-published_date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag'] = self.tag
+        return context
+
+# Search posts by keyword
+
+
+class PostSearchView(ListView):
+    model = Post
+    template_name = 'blog/search_results.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+
+    def get_queryset(self):
+        query = self.request.GET.get('q', '').strip()
+        if query:
+            return Post.objects.filter(
+                Q(title__icontains=query) |
+                Q(content__icontains=query) |
+                Q(tags__name__icontains=query)
+            ).distinct().order_by('-published_date')
+        return Post.objects.none()

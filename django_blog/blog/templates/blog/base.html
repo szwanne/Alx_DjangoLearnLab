@@ -22,6 +22,10 @@
     </header>
 
     <main>{% block content %} {% endblock %}</main>
+    <form method="get" action="{% url 'post-search' %}">
+      <input type="text" name="q" placeholder="Search posts..." />
+      <button type="submit">Search</button>
+    </form>
 
     <script src="{% static 'blog/script.js' %}"></script>
   </body>

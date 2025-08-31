@@ -56,6 +56,10 @@
     {% endif %}
   </div>
 </section>
-
+<p>
+  Tags: {% for tag in post.tags.all %}
+  <a href="{% url 'posts-by-tag' tag.name %}">{{ tag.name }}</a>{% if not
+  forloop.last %}, {% endif %} {% empty %} No tags {% endfor %}
+</p>
 <p><a href="{% url 'post-list' %}">← Back to posts</a></p>
 {% endblock %}
