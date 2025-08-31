@@ -1,58 +1,88 @@
-from rest_framework import status, generics
-from rest_framework.response import Response
-from django.contrib.auth import authenticate, get_user_model, User
-from rest_framework.authtoken.models import Token
+from django.shortcuts import render
+from rest_framework import viewsets, permissions
+from .models import Post, Comment
+from .serializers import CommentSerializer, PostSerializer
+from rest_framework import filters
 from rest_framework.views import APIView
-from .serializers import CustomUserSerializer, TokenSerializer
-from rest_framework import permissions
-from accounts.models import CustomUser
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+# from django.shortcuts import get_object_or_404
+from .models import Post, Like
+from rest_framework import generics
+from notifications.models import Notification
 
 
-class RegisterUserView(generics.CreateAPIView):
-    queryset = get_user_model().objects.all()
-    serializer_class = CustomUserSerializer
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all().order_by('-created_at')
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'content']
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 
-class LoginView(APIView):
-    def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all().order_by('-created_at')
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key}, status=status.HTTP_200_OK)
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 
-class RetrieveTokenView(APIView):
-    def post(self, request):
-        user = request.user
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key})
+class FeedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        following_users = request.user.following.all()
+        posts = Post.objects.filter(
+            author__in=following_users).order_by('-created_at')
+        feed_data = [
+            {
+                "id": posts.id,
+                "author": posts.author.username,
+                "title": posts.title,
+                "content": posts.content,
+                "created_at": posts.created_at,
+            }
+            for post in posts
+        ]
+        return Response(feed_data)
 
 
-class FollowUserView(generics.GenericAPIView):
-    queryset = CustomUser.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+class LikePostView(APIView):
+    permission_classes = [IsAuthenticated]
 
-    def post(self, request, user_id):
-        try:
-            user_to_follow = User.objects.get(id=user_id)
-            request.user.following.add(user_to_follow)
-            return Response({'status': 'followed'}, status=status.HTTP_200_OK)
-        except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    def post(self, request, pk):
+        post = generics.get_object_or_404(Post, pk=pk)
+        like, created = Like.objects.get_or_create(
+            user=request.user, post=post)
+
+        if created:
+            # create a notification for the post's author
+            if post.author != request.user:
+                Notification.objects.create(
+                    recipient=post.author,
+                    actor=request.user,
+                    verb='liked your post',
+                    target=post,
+                )
+            return Response({'message': 'Post liked successfuly!'})
+        else:
+            return Response({'message': 'you already liked this post.'}, status=400)
 
 
-class UnfollowUserView(generics.GenericAPIView):
-    queryset = CustomUser.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+class UnlikePostView(APIView):
+    permission_classes = [IsAuthenticated]
 
-    def post(self, request, user_id):
-        try:
-            user_to_unfollow = User.objects.get(id=user_id)
-            request.user.following.remove(user_to_unfollow)
-            return Response({'status': 'unfollowed'}, status=status.HTTP_200_OK)
-        except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    def post(self, request, pk):
+        post = generics.get_object_or_404(Post, pk=pk)
+        like = Like.objects.filter(user=request.user, post=post)
+
+        if like.exists():
+            like.delete()
+            return Response({'message': 'Post unliked successfully!'})
+        else:
+            return Response({'message': 'You have not liked this post yet.'}, status=400)
