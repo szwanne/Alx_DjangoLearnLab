@@ -51,3 +51,14 @@ Forms validated and updated via POST request.
 - Commands:
   - `python manage.py makemigrations` / `migrate`
   - `python manage.py runserver`
+
+## Comments feature
+
+- Model: `Comment` (post FK, author FK, content, created_at, updated_at).
+- URLs:
+  - Create comment: `POST /posts/<post_pk>/comments/new/` (login required)
+  - Edit comment: `/comments/<pk>/edit/` (only comment author)
+  - Delete comment: `/comments/<pk>/delete/` (only comment author)
+- Adding comments: Authenticated users can add comments directly on a post's detail page.
+- Editing/deleting: Only the comment's author can edit or delete; controls are shown inline when user is the author.
+- All forms use CSRF tokens and server-side validation via `CommentForm`.
