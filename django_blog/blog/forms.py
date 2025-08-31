@@ -1,4 +1,5 @@
 # blog/forms.py
+from taggit.forms import TagWidget  # import TagWidget from django-taggit
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -25,9 +26,9 @@ class ProfileUpdateForm(forms.ModelForm):
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content', 'tags']  # include tags
+        fields = ['title', 'content', 'tags']
         widgets = {
-            'tags': TagWidget(attrs={'placeholder': 'Add tags separated by commas'}),
+            'tags': TagWidget(),
         }
 
 
